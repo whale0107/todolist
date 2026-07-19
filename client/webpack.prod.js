@@ -1,4 +1,5 @@
 const {merge} = require('webpack-merge');
+const webpack = require('webpack');
 const common = require('./webpack.common');
 
 module.exports = merge(common, {
@@ -24,4 +25,12 @@ module.exports = merge(common, {
         },
         runtimeChunk: 'single', // 将运行时代码单独打包成一个文件，减少主文件体积，提高加载速度
     },
+
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('production'),
+            'process.env.REACT_APP_API_BASE_URL': JSON.stringify(process.env.REACT_APP_API_BASE_URL || '/api'),
+            'process.env.PUBLIC_URL': JSON.stringify(process.env.PUBLIC_URL || '/'),
+        }),
+    ],
 })

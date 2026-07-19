@@ -27,6 +27,8 @@ module.exports = merge(common, {
     plugins: [
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('development'),
+            'process.env.REACT_APP_API_BASE_URL': JSON.stringify(process.env.REACT_APP_API_BASE_URL || '/api'),
+            'process.env.PUBLIC_URL': JSON.stringify(process.env.PUBLIC_URL || '/'),
         }),
     ],
 });
