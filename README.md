@@ -113,70 +113,66 @@ cd server
 npm start
 ```
 
-## Vercel 部署说明
+## GitHub Pages 部署说明
 
-> 推荐方案：前端部署到 Vercel，后端部署到 Vercel 或单独的云服务。由于本项目依赖 MySQL，后端仍然需要一个可用的数据库环境。
+> 说明：GitHub Pages 只能托管前端静态页面。你的后端 Express + MySQL 服务仍然需要单独部署到 Render、Railway、Fly.io、阿里云、腾讯云或你自己的服务器上。
 
-### 1. 前端部署到 Vercel
+### 1. 前端部署到 GitHub Pages
+
+项目已经配置好 GitHub Actions 自动部署流程，推送到 `main` 分支后会自动构建并发布到 GitHub Pages。
 
 #### 你需要准备
 
 - 一个 GitHub 仓库
-- 一个 Vercel 账号
+- 一个可用的后端接口地址，例如：
+  - `https://your-backend-domain.com/api`
 
-#### 部署步骤
+#### 在 GitHub 仓库中设置变量
 
-1. 打开 Vercel，点击 Import Project
-2. 选择你的 GitHub 仓库
-3. 设置项目根目录为仓库根目录
-4. 构建命令填写：
+进入仓库的 Settings → Secrets and variables → Actions → Variables，新增以下变量：
 
-```bash
-cd client && npm install && npm run build
-```
+- `REACT_APP_API_BASE_URL`：你的后端接口地址
 
-5. 输出目录填写：
+例如：
 
 ```text
-client/dist
+https://your-backend-domain.com/api
 ```
 
-6. 点击 Deploy
+### 2. 自动部署流程
 
-### 2. 后端部署到 Vercel
+项目中已添加工作流文件：
 
-如果你希望前后端都部署在 Vercel 上，可以直接使用仓库根目录部署。Vercel 会根据 [vercel.json](vercel.json) 识别后端入口。
+- [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml)
 
-#### 需要设置的环境变量
+每次推送到 `main` 分支后，GitHub Actions 会自动执行构建并部署。
 
-在 Vercel 项目设置中添加：
+### 3. 本地构建
+
+```bash
+cd client
+npm install
+npm run build
+```
+
+构建结果会输出到 `client/dist`。
+
+### 4. 线上环境变量
+
+前端构建时会读取这些变量：
 
 ```env
-PORT=3001
-CORS_ORIGIN=https://your-frontend-domain.vercel.app
-DB_HOST=your_db_host
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=your_db_name
+REACT_APP_API_BASE_URL=https://your-backend-domain.com/api
+PUBLIC_URL=/your-repo-name
 ```
 
-### 3. 前端接口地址配置
+其中：
+- `REACT_APP_API_BASE_URL`：后端接口地址
+- `PUBLIC_URL`：GitHub Pages 项目路径，例如仓库名是 `todolist-fullstack`，则填写：`/todolist-fullstack`
 
-前端会读取环境变量 `REACT_APP_API_BASE_URL`，请在 Vercel 中设置：
+### 5. 数据库准备
 
-```env
-REACT_APP_API_BASE_URL=https://your-backend-domain.vercel.app/api
-```
-
-如果你是前后端同一个 Vercel 项目，接口地址也可以写成：
-
-```env
-REACT_APP_API_BASE_URL=/api
-```
-
-### 4. 数据库准备
-
-请确保你的 MySQL 数据库可被后端访问，并且包含 `tasks` 表。
+后端仍需要 MySQL 数据库，建议先准备好数据库表：
 
 ```sql
 CREATE DATABASE todolist;
