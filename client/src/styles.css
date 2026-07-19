@@ -1,0 +1,356 @@
+/**
+ * ============================================================
+ * 全局样式
+ * 作用：让页面好看、适配移动端
+ * ============================================================
+ */
+
+/* ========== 全局重置 ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* 宽高包含 padding 和 border */
+}
+
+/* ========== 页面背景 ========== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ========== App 主容器 ========== */
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  padding: 30px 32px 40px;
+}
+
+/* ========== 头部 ========== */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.app-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.task-count {
+  font-size: 14px;
+  color: #888;
+  background: #f0f0f0;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-left: auto;
+}
+
+.btn-refresh {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.btn-refresh:hover {
+  background: #f0f0f0;
+}
+
+/* ========== 表单 ========== */
+.task-form {
+  margin-bottom: 24px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 16px;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #667eea;
+}
+
+.btn-submit {
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========== 错误消息 ========== */
+.error-message {
+  background: #fff3f3;
+  color: #d32f2f;
+  padding: 12px 18px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #f5c2c2;
+}
+
+.btn-retry {
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 4px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-retry:hover {
+  background: #b71c1c;
+}
+
+/* ========== 加载状态 ========== */
+.loading-container {
+  text-align: center;
+  padding: 48px 0;
+  color: #999;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== 空状态 ========== */
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  color: #aaa;
+  font-size: 18px;
+}
+
+/* ========== 任务列表 ========== */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ========== 单个任务项 ========== */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #f8f9fc;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.task-item:hover {
+  background: #f0f2f7;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #667eea;
+  flex-shrink: 0;
+}
+
+.task-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.task-title {
+  font-size: 16px;
+  color: #1a1a2e;
+  word-break: break-word;
+}
+
+.task-description {
+  font-size: 14px;
+  color: #888;
+  word-break: break-word;
+}
+
+.task-time {
+  font-size: 12px;
+  color: #bbb;
+  margin-top: 2px;
+}
+
+.task-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.task-actions button {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-edit {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+.btn-edit:hover {
+  background: #d2e3fc;
+}
+
+.btn-delete {
+  background: #fee8e8;
+  color: #d32f2f;
+}
+
+.btn-delete:hover {
+  background: #fdd0d0;
+}
+
+/* ========== 编辑模式 ========== */
+.task-item.editing {
+  flex-wrap: wrap;
+  background: #fff8e7;
+  border: 2px solid #ffd54f;
+}
+
+.task-item.editing .edit-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.task-item.editing .edit-input:focus {
+  border-color: #667eea;
+}
+
+.task-item.editing .task-actions {
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-save {
+  background: #667eea;
+  color: #fff;
+}
+
+.btn-save:hover {
+  background: #5a6fd6;
+}
+
+.btn-cancel {
+  background: #e0e0e0;
+  color: #555;
+}
+
+.btn-cancel:hover {
+  background: #d0d0d0;
+}
+
+/* ========== 响应式适配（手机） ========== */
+@media (max-width: 600px) {
+  .app {
+    padding: 16px 14px 24px;
+  }
+
+  .app-header h1 {
+    font-size: 22px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-input {
+    min-width: unset;
+  }
+
+  .btn-submit {
+    width: 100%;
+  }
+
+  .task-item {
+    flex-wrap: wrap;
+    padding: 12px 14px;
+  }
+
+  .task-content {
+    order: 2;
+    flex-basis: calc(100% - 34px);
+  }
+
+  .task-checkbox {
+    order: 1;
+  }
+
+  .task-actions {
+    order: 3;
+    margin-left: auto;
+  }
+}

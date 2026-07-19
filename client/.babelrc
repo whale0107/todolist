@@ -1,0 +1,8 @@
+{
+    "presets": [
+        // 把现代 JavaScript 转换为向后兼容的版本
+        "@babel/preset-env",
+        // 将 JSX 转换为 react代码（runtime：automatic 使用新的jsx转换）
+        ["@babel/preset-react", {"runtime": "automatic"}]
+    ]
+}
