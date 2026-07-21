@@ -14,7 +14,7 @@ const errorHandler = require('./middleware/errorHandler');
 
 // 创建 Express 应用实例
 const app = express();
-// 从环境变量读取端口号，默认 3001
+// Render 会提供 PORT 环境变量，默认使用 3001
 const PORT = process.env.PORT || 3001;
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000')
   .split(',')

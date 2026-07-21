@@ -1,15 +1,19 @@
-const mysql = require('mysql2');
-require('dotenv').config();
+const { Pool } = require('pg');
 
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+// 读取环境变量
+const pool = new Pool({
+  connectionString: process.env.DB_URL,  // ✅ 从环境变量读取
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
 });
 
-const db = pool.promise();
-module.exports = db;
+// 测试连接
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('❌ 数据库连接失败:', err.stack);
+  } else {
+    console.log('✅ 数据库连接成功');
+    release();
+  }
+});
+
+module.exports = pool;

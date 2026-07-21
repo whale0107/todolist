@@ -1,63 +1,68 @@
+// server/src/controllers/taskController.js
+
 const db = require('../config/db');
 
-//处理 GET /api/tasks 请求
-async function getAllTasks(req, res, next)  {
-    try {
-        const [rows] = await db.query(
-            'SELECT id, title, description, completed, created_at, updated_at FROM tasks ORDER BY created_at DESC'
-        );
-        res.json({code: 0,data: rows, message: 'success'});
-    } catch (error) {
-        next(error);
-    }
+// ============================================================
+// 1. 获取所有任务
+// ============================================================
+async function getAllTasks(req, res, next) {
+  try {
+    const result = await db.query(
+      'SELECT id, title, description, completed, created_at, updated_at FROM tasks ORDER BY created_at DESC'
+    );
+    res.json({
+      code: 0,
+      data: result.rows,
+      message: 'success',
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
-//处理 POST /api/tasks 请求
+// ============================================================
+// 2. 创建任务
+// ============================================================
 async function createTask(req, res, next) {
-    const { title, description } = req.body;
+  const { title, description } = req.body;
 
-    // 验证请求体中的 title 是否为空
-    if(!title || title.trim() === '') {
-        return res.status(400).json({
-            code: 10001,
-            data: null,
-            message: 'Title is required'
-        });
-    }
+  if (!title || title.trim() === '') {
+    return res.status(400).json({
+      code: 10001,
+      data: null,
+      message: '任务标题不能为空',
+    });
+  }
 
-    try {
-        const [result] = await db.query(
-            'INSERT INTO tasks (title, description) VALUES (?, ?)',
-            [title.trim(), description || '']//如果description为空，设为空字符串
-        );
+  try {
+    const result = await db.query(
+      'INSERT INTO tasks (title, description) VALUES ($1, $2) RETURNING *',
+      [title.trim(), description || '']
+    );
 
-        //查询新插入的任务详情（返回完整数据给前端）
-        const [rows] = await db.query(
-            'SELECT id, title, description, completed, created_at, updated_at FROM tasks WHERE id = ?',
-            [result.insertId]
-        );
-
-        //返回新创建的任务数据
-        res.json({
-            code: 0,
-            data: rows[0],
-            message: 'Task created successfully'
-        })
-    } catch (error) {
-        next(error);
-    }
+    res.json({
+      code: 0,
+      data: result.rows[0],
+      message: '创建成功',
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
-//处理 PUT /api/tasks/:id 请求
+// ============================================================
+// 3. 更新任务（PUT 请求）
+// ============================================================
 async function updateTask(req, res, next) {
   const { id } = req.params;
   const { title, description, completed } = req.body;
 
-  console.log('🔥 [updateTask] 收到请求, id:', id, 'body:', req.body);
+  console.log(`[更新任务] ID: ${id}, 数据:`, req.body);
 
   try {
-    const [existing] = await db.query('SELECT id FROM tasks WHERE id = ?', [id]);
-    if (existing.length === 0) {
+    // 检查任务是否存在
+    const checkResult = await db.query('SELECT id FROM tasks WHERE id = $1', [id]);
+    if (checkResult.rows.length === 0) {
       return res.status(404).json({
         code: 10002,
         data: null,
@@ -65,19 +70,25 @@ async function updateTask(req, res, next) {
       });
     }
 
+    // 动态构建更新语句
     const updates = [];
     const values = [];
+    let paramIndex = 1;
+
     if (title !== undefined) {
-      updates.push('title = ?');
+      updates.push(`title = $${paramIndex}`);
       values.push(title.trim());
+      paramIndex++;
     }
     if (description !== undefined) {
-      updates.push('description = ?');
+      updates.push(`description = $${paramIndex}`);
       values.push(description || '');
+      paramIndex++;
     }
     if (completed !== undefined) {
-      updates.push('completed = ?');
+      updates.push(`completed = $${paramIndex}`);
       values.push(completed ? 1 : 0);
+      paramIndex++;
     }
 
     if (updates.length === 0) {
@@ -89,56 +100,90 @@ async function updateTask(req, res, next) {
     }
 
     values.push(id);
-    await db.query(`UPDATE tasks SET ${updates.join(', ')} WHERE id = ?`, values);
-
-    const [rows] = await db.query(
-      'SELECT id, title, description, completed, created_at, updated_at FROM tasks WHERE id = ?',
-      [id]
+    const result = await db.query(
+      `UPDATE tasks SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      values
     );
 
     res.json({
       code: 0,
-      data: rows[0],
+      data: result.rows[0],
       message: '更新成功',
     });
   } catch (error) {
-    console.error('🔥 [updateTask] 错误:', error);
     next(error);
   }
 }
 
-
-//处理 DELETE /api/tasks/:id 请求
+// ============================================================
+// 4. 删除任务（DELETE 请求）
+// ============================================================
 async function deleteTask(req, res, next) {
-    const { id } = req.params;  //获取任务ID
-    try {
-        const [result] = await db.query(
-            'DELETE FROM tasks WHERE id = ?',
-            [id]
-        );
+  const { id } = req.params;
 
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                code: 10002,
-                data: null,
-                message: 'Task not found'
-            });
-        }
+  try {
+    const result = await db.query('DELETE FROM tasks WHERE id = $1 RETURNING id', [id]);
 
-        res.json({
-            code: 0,
-            data: null,
-            message: 'Task deleted successfully'
-        });
-    } catch (error) {
-        next(error);
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        code: 10002,
+        data: null,
+        message: 'Task not found',
+      });
     }
+
+    res.json({
+      code: 0,
+      data: { id: parseInt(id) },
+      message: '删除成功',
+    });
+  } catch (error) {
+    next(error);
+  }
 }
 
-//导出控制器函数
+// ============================================================
+// 5. 切换任务完成状态
+// ============================================================
+async function toggleComplete(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    // 先获取当前状态
+    const checkResult = await db.query('SELECT completed FROM tasks WHERE id = $1', [id]);
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        code: 10002,
+        data: null,
+        message: 'Task not found',
+      });
+    }
+
+    const currentCompleted = checkResult.rows[0].completed;
+    const newCompleted = currentCompleted === 0 ? 1 : 0;
+
+    const result = await db.query(
+      'UPDATE tasks SET completed = $1 WHERE id = $2 RETURNING *',
+      [newCompleted, id]
+    );
+
+    res.json({
+      code: 0,
+      data: result.rows[0],
+      message: '切换成功',
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ============================================================
+// ✅ 导出所有函数
+// ============================================================
 module.exports = {
-    getAllTasks,
-    createTask,
-    updateTask,
-    deleteTask
+  getAllTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+  toggleComplete,
 };
